@@ -43,7 +43,7 @@ PyObject* wrap_get_ndarray_2x3(PyObject* self, PyObject *no_arg)
 extern "C"
 {
 
-static PyMethodDef clib_meth[] = {
+static PyMethodDef module_meth[] = {
 	{"get_ndarray_2x3", wrap_get_ndarray_2x3,
 		METH_NOARGS, "get a 2-d array with size 2x3"},
 	{NULL, NULL, 0, NULL},
@@ -51,18 +51,18 @@ static PyMethodDef clib_meth[] = {
 
 #if (PY_MAJOR_VERSION >= 3)
 
-static struct PyModuleDef clib_def = {
+static struct PyModuleDef module_def = {
 	PyModuleDef_HEAD_INIT,
-	"clib", /* module name */
+	"module", /* module name */
 	NULL, /* module doc string, NULL safe */
 	-1,
-	clib_meth,
+	module_meth,
 };
 
-PyMODINIT_FUNC PyInit_clib(void)
+PyMODINIT_FUNC PyInit_module(void)
 {
 	import_array();
-	return PyModule_Create(&clib_def);
+	return PyModule_Create(&module_def);
 }
 
 #else

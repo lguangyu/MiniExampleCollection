@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
-import clib
+import module
 import numpy
 
-a = clib.get_ndarray_2x3()
+a = module.get_ndarray_2x3()
 print(a)
 print(type(a).__name__)

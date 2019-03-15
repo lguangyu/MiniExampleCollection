@@ -1,33 +1,37 @@
 CXXSTD = -std=c++11
-PYTHON_INCLUDE =
+PYTHON_INCLUDE = -I/usr/include/python3.5
 PYTHON_LIB =
-NUMPY_INCLUDE =
-NUMPY_LIB =
 override CXXFLAGS := $(CXXFLAGS)
 override LDFLAGS := $(LDFLAGS)
 
-TARGET = module.so
+TARGET = foo.so
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 DEPENDENCIES = $(SOURCES:.cpp=.d)
 
+
 .PHONY: build
 build: $(TARGET)
 
+
 $(TARGET): $(OBJECTS)
-	$(CXX) -shared -o $@ $^ $(LDFLAGS) $(PYTHON_LIB) $(NUMPY_LIB)
+	$(CXX) -shared -o $@ $^ $(LDFLAGS) $(PYTHON_LIB)
+
 
 %.o: %.cpp
-	$(CXX) $(CXXSTD) $(CXXFLAGS) $(PYTHON_INCLUDE) $(NUMPY_INCLUDE) -fPIC -c -MMD -MP -o $@ $<
+	$(CXX) $(CXXSTD) $(CXXFLAGS) $(PYTHON_INCLUDE) -fPIC -c -MMD -MP -o $@ $<
 
-.PHONY: run
-run: build
+
+.PHONY: check
+check: build
 	./check.py
+
 
 .PHONY: clean
 clean:
 	-rm -f $(TARGET)
 	-rm -f $(OBJECTS)
 	-rm -f $(DEPENDENCIES)
+
 
 -include $(DEPENDENCIES)

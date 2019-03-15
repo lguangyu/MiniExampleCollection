@@ -1,0 +1,15 @@
+# misc
+.DS_Store
+*.swp
+dev/
+
+# python
+*.pyc
+__pycache__/
+
+# c++
+*.o
+*.d
+*.so
+*.dylib
+*.out
