@@ -8,7 +8,7 @@
 namespace custom_singal
 {
 
-std::sig_atomic_t sigint_set;
+volatile std::sig_atomic_t sigint_set;
 
 void custom_signal_handler(int sig)
 {
