@@ -1,3 +1,6 @@
+#ifndef __INTERFACE_HPP__
+#define __INTERFACE_HPP__
+
 #include <Python.h>
 #include <structmember.h>
 
@@ -36,3 +39,5 @@ extern "C"
 PyMODINIT_FUNC PyInit_foo(void);
 
 }; /* end of extern "C" */
+
+#endif /* __INTERFACE_HPP__ */
