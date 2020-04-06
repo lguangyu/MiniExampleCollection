@@ -1,6 +1,22 @@
 #include "Python.h"
-#include <iostream>
 #include <ctime>
+#include <iostream>
+#include <csignal>
+#include <exception>
+
+
+namespace custom_singal
+{
+
+std::sig_atomic_t sigint_set;
+
+void custom_signal_handler(int sig)
+{
+	sigint_set = 1;
+	return;
+}
+
+};
 
 
 PyObject* wait_for_enter(PyObject* self, PyObject* no_arg)
@@ -32,6 +48,27 @@ PyObject* loop_wait(PyObject* self, PyObject* args)
 	Py_RETURN_NONE;
 }
 
+PyObject* loop_wait_custom_handler(PyObject* self, PyObject* args)
+{
+	::custom_singal::sigint_set = 0; /* reset signal flag */
+	std::signal(SIGINT, &::custom_singal::custom_signal_handler);
+
+	unsigned duration_sec;
+	if (PyArg_ParseTuple(args, "I", &duration_sec) == 0)
+		return NULL;
+
+	const std::clock_t start = clock();
+	const std::clock_t duration_clocks = duration_sec * CLOCKS_PER_SEC;
+		while (clock() < (start + duration_clocks))
+			if (::custom_singal::sigint_set)
+			{
+				PyErr_SetInterrupt();
+				if (PyErr_CheckSignals())
+					return NULL;
+			}
+	Py_RETURN_NONE;
+}
+
 extern "C"
 {
 
@@ -39,6 +76,7 @@ static PyMethodDef foo_meth_def[] = {
 	{"wait_for_enter", wait_for_enter, METH_NOARGS, NULL},
 	{"posix_sleep", posix_sleep, METH_VARARGS, NULL},
 	{"loop_wait", loop_wait, METH_VARARGS, NULL},
+	{"loop_wait_custom_handler", loop_wait_custom_handler, METH_VARARGS, NULL},
 	{NULL, NULL, 0, NULL},
 };
 
