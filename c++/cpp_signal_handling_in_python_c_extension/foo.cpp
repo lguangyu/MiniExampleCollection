@@ -8,11 +8,29 @@
 namespace custom_singal
 {
 
-volatile std::sig_atomic_t sigint_set;
+static volatile std::sig_atomic_t sigint_set;
+static struct sigaction old_act;
 
 void custom_signal_handler(int sig)
 {
 	sigint_set = 1;
+	return;
+}
+
+void init_with_custom_sigint_handler(void)
+{
+	/* preserve old signal handler */
+	sigaction(SIGINT, NULL, &old_act);
+	/* install custom */
+	std::signal(SIGINT, custom_signal_handler);
+	/* reset the flag to zero */
+	sigint_set = 0;
+	return;
+}
+
+void restore_python_sigint_handler(void)
+{
+	std::signal(SIGINT, old_act.sa_handler);
 	return;
 }
 
@@ -50,8 +68,7 @@ PyObject* loop_wait(PyObject* self, PyObject* args)
 
 PyObject* loop_wait_custom_handler(PyObject* self, PyObject* args)
 {
-	::custom_singal::sigint_set = 0; /* reset signal flag */
-	std::signal(SIGINT, &::custom_singal::custom_signal_handler);
+	::custom_singal::init_with_custom_sigint_handler();
 
 	unsigned duration_sec;
 	if (PyArg_ParseTuple(args, "I", &duration_sec) == 0)
@@ -62,9 +79,10 @@ PyObject* loop_wait_custom_handler(PyObject* self, PyObject* args)
 		while (clock() < (start + duration_clocks))
 			if (::custom_singal::sigint_set)
 			{
+				::custom_singal::restore_python_sigint_handler();
 				PyErr_SetInterrupt();
-				if (PyErr_CheckSignals())
-					return NULL;
+				PyErr_CheckSignals();
+				return NULL;
 			}
 	Py_RETURN_NONE;
 }
