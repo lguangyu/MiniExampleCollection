@@ -39,7 +39,7 @@ namespace foo_interface
 		0,								/* tp_itemsize */
 		/* basic methods */
 		(destructor)tp_dealloc,			/* tp_dealloc, release member PyObject */
-		NULL,							/* tp_print, deprecated in python 3.x */
+		0,								/* tp_vectorcall_offset, 3.7+ */
 		NULL,							/* tp_getattr, deprecated */
 		NULL,							/* tp_setattr, deprecated */
 		NULL,							/* tp_as_async, PyAsyncMethods* */
@@ -83,6 +83,7 @@ namespace foo_interface
 		NULL,							/* tp_del, i.e. self.__del__() */
 		0,								/* tp_version_tag, unsigned int */
 		(destructor)NULL,				/* tp_finalize */
+		NULL,							/* tp_vectorcall, 3.7+ */
 	};
 
 	/* add type to module */
